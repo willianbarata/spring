@@ -1,5 +1,6 @@
 package com.willian.mobile;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,11 +10,25 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.willian.mobile.domain.Categoria;
 import com.willian.mobile.domain.Cidade;
+import com.willian.mobile.domain.Cliente;
+import com.willian.mobile.domain.Endereco;
 import com.willian.mobile.domain.Estado;
+import com.willian.mobile.domain.ItemPedido;
+import com.willian.mobile.domain.Pagamento;
+import com.willian.mobile.domain.PagamentoComBoleto;
+import com.willian.mobile.domain.PagamentoComCartao;
+import com.willian.mobile.domain.Pedido;
 import com.willian.mobile.domain.Produto;
+import com.willian.mobile.domain.enums.EstadoPagamento;
+import com.willian.mobile.domain.enums.TipoCliente;
 import com.willian.mobile.repositories.CategoriaRepository;
 import com.willian.mobile.repositories.CidadeRepository;
+import com.willian.mobile.repositories.ClienteRepository;
+import com.willian.mobile.repositories.EnderecoRepository;
 import com.willian.mobile.repositories.EstadoRepository;
+import com.willian.mobile.repositories.ItemPedidoRepository;
+import com.willian.mobile.repositories.PagamentoRepository;
+import com.willian.mobile.repositories.PedidoRepository;
 import com.willian.mobile.repositories.ProdutoRepository;
 
 @SpringBootApplication
@@ -31,6 +46,21 @@ public class MobileApplication implements CommandLineRunner{
 	@Autowired
 	private CidadeRepository cidadeRepository;
 	
+	@Autowired
+	private ClienteRepository clienteRepository;
+	
+	@Autowired
+	private EnderecoRepository enderecoRepository;
+	
+	@Autowired
+	private PedidoRepository pedidoRepository;
+	
+	@Autowired
+	private PagamentoRepository pagamentoRepository;
+	
+	@Autowired
+	private ItemPedidoRepository itemPedidoRepository;
+	
 	public static void main(String[] args) {
 		SpringApplication.run(MobileApplication.class, args);
 	}
@@ -38,8 +68,8 @@ public class MobileApplication implements CommandLineRunner{
 	@Override
 	public void run(String... args) throws Exception {
 		
-		Categoria cat1 = new Categoria(null, "Informática");
-		Categoria cat2 = new Categoria(null, "Escritório");
+		Categoria cat1 = new Categoria(null, "Informatica");
+		Categoria cat2 = new Categoria(null, "Escritorio");
 		
 		Produto p1 = new Produto(null, "Computador", 2000.00);
 		Produto p2 = new Produto(null, "Impressora", 800.00);
@@ -67,6 +97,46 @@ public class MobileApplication implements CommandLineRunner{
 		
 		estadoRepository.saveAll(Arrays.asList(est1, est2));
 		cidadeRepository.saveAll(Arrays.asList(c1,c2,c3));
+		
+		Cliente cli1 = new Cliente(null, "Maria Silva", "maria@gmail.com", "36378912377", TipoCliente.PESSOAFISICA);
+		cli1.getTelefones().addAll(Arrays.asList("27363323", "93838393"));
+		
+		Endereco e1 = new Endereco(null, "Rua Flores", "300", "Apto 303", "Jardim", "38220834", cli1, c1);
+		Endereco e2 = new Endereco(null, "Avenida Mattos", "105", "sala 800", "Centro", "38777012", cli1, c2);
+		
+		cli1.getEnderecos().addAll(Arrays.asList(e1,e2));
+		
+		clienteRepository.saveAll(Arrays.asList(cli1));
+		enderecoRepository.saveAll(Arrays.asList(e1,e2));
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+		Pedido ped1 = new Pedido(null, sdf.parse("30/09/2017 10:32"), cli1, e1);
+		
+		Pedido ped2 = new Pedido(null, sdf.parse("10/10/2017 19:35"), cli1, e2);
+		
+		Pagamento pagto1 = new PagamentoComCartao(null, EstadoPagamento.QUITADO, ped1, 6);
+		ped1.setPagamento(pagto1);
+		
+		Pagamento pagto2 = new PagamentoComBoleto(null, EstadoPagamento.PENDENTE, ped2, sdf.parse("20/10/2017 00:00"),null);
+		ped2.setPagamento(pagto2);
+		
+		cli1.getPedidos().addAll(Arrays.asList(ped1, ped2));
+		
+		pedidoRepository.saveAll(Arrays.asList(ped1,ped2));
+		pagamentoRepository.saveAll(Arrays.asList(pagto1,pagto2));
+		
+		ItemPedido ip1 = new ItemPedido(ped1, p1, 0.00, 1, 2000.00);
+		ItemPedido ip2 = new ItemPedido(ped1, p3, 0.00, 2, 80.00);
+		ItemPedido ip3 = new ItemPedido(ped2, p2, 100.00, 1, 800.00);
+		
+		ped1.getItems().addAll(Arrays.asList(ip1, ip2));
+		ped2.getItems().addAll(Arrays.asList(ip3));
+		
+		p1.getItems().addAll(Arrays.asList(ip1));
+		p2.getItems().addAll(Arrays.asList(ip3));
+		p3.getItems().addAll(Arrays.asList(ip2));
+		
+		itemPedidoRepository.saveAll(Arrays.asList(ip1,ip2,ip3));
 		
 	}
 
