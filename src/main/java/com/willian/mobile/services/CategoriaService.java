@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.willian.mobile.DTO.CategoriaDTO;
 import com.willian.mobile.domain.Categoria;
+import com.willian.mobile.domain.Cliente;
 import com.willian.mobile.repositories.CategoriaRepository;
 import com.willian.mobile.services.exception.DataIntegrityException;
 import com.willian.mobile.services.exception.ObjectNotFoundException;
@@ -37,8 +38,9 @@ public class CategoriaService {
 	}
 	
 	public Categoria update(Categoria obj) {
-		find(obj.getId());
-		return repo.save(obj);
+		Categoria newObj = find(obj.getId());
+		updateData(newObj, obj);
+		return repo.save(newObj);
 	}
 	
 	public void delete(Integer id) {
@@ -63,5 +65,9 @@ public class CategoriaService {
 	//método auxiliar que instância uma categoria a partir de um DTO
 	public Categoria fromDTO(CategoriaDTO objDTO) {
 		return new Categoria(objDTO.getId(), objDTO.getNome());
+	}
+	
+	private void updateData(Categoria newObj, Categoria obj) {
+		newObj.setNome(obj.getNome());
 	}
 }
