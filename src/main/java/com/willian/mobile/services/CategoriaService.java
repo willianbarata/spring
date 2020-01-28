@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
+import com.willian.mobile.DTO.CategoriaDTO;
 import com.willian.mobile.domain.Categoria;
 import com.willian.mobile.repositories.CategoriaRepository;
 import com.willian.mobile.services.exception.DataIntegrityException;
@@ -57,5 +58,10 @@ public class CategoriaService {
 		
 		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderby);
 		return repo.findAll(pageRequest);
+	}
+	
+	//método auxiliar que instância uma categoria a partir de um DTO
+	public Categoria fromDTO(CategoriaDTO objDTO) {
+		return new Categoria(objDTO.getId(), objDTO.getNome());
 	}
 }
